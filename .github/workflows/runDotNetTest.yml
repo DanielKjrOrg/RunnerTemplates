@@ -1,0 +1,27 @@
+name: Run unit tests
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        description: 'Runner to use for the job'
+        required: false
+        default: 'local'
+        type: string
+      test-dll-name:
+        description: name of project containing unit tests
+        required: true
+        type: string
+
+jobs:
+  buildProject:
+    uses: DanielKjrOrg/RunnerTemplates/.github/workflows/buildDotNet.yml@master
+  
+  run-tests:
+    runs-on: ${{ intpus.runner }}
+    needs: buildProject
+    steps:
+      - name: Find and run tests
+        run: |
+          dotnet test ./**/bin/**/${{ inputs.test-dll-name }}.dll --no-build --verbosity normal
+        shell: powershell
