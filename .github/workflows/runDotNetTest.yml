@@ -8,20 +8,33 @@ on:
         required: false
         default: 'local'
         type: string
-      test-dll-name:
+      test1:
         description: name of project containing unit tests
         required: true
         type: string
+      test2:
+        description: name of project containing unit tests
+        required: false
+        default: 'none'
+        type: string
 
+defaults:
+  run:
+    shell: powershell
 jobs:
   buildProject:
     uses: DanielKjrOrg/RunnerTemplates/.github/workflows/buildDotNet.yml@master
-  
+
   run-tests:
     runs-on: ${{ intpus.runner }}
     needs: buildProject
     steps:
       - name: Find and run tests
         run: |
-          dotnet test ./**/bin/**/${{ inputs.test-dll-name }}.dll --no-build --verbosity normal
-        shell: powershell
+          dotnet test ./**/bin/**/${{ inputs.test1 }}.dll --no-build --verbosity normal
+        
+
+      - name: Run other tests
+        if: ${{ inputs.test2 != 'none'}}
+        run: |
+          dotnet test ./**/bin/**/${{ inputs.test2 }}.dll --no-build --verbosity normal
