@@ -1,0 +1,45 @@
+name: Build NPM
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        description: 'Runner to use for the job'
+        required: false
+        default: 'self-hosted'
+        type: string
+      publish:
+        description: 'Whether or not to run the Publish command'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  npm-install-build:
+    runs-on: ${{ inputs.runner }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+      
+    - name: npm install
+      run: npm install
+      shell: powershell
+
+    - name: Build project
+      run: npm run build -- --configuration production
+      shell: powershell
+      
+  build-prod:
+    runs-on: ${{ inputs.runner }}
+    needs: npm-install-build
+    if: ${{ inputs.publish == true }}
+    steps:
+    - name: Clear dist folder
+      run: Remove-Item -Recurse -Force ./dist/*
+      shell: powershell
+      
+    - name: publish
+      run: |
+         npm run build:prod 
+      shell: powershell
