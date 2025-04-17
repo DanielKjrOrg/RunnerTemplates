@@ -26,7 +26,7 @@ jobs:
     uses: DanielKjrOrg/RunnerTemplates/.github/workflows/buildDotNet.yml@main
 
   run-tests:
-    runs-on: ${{ intpus.runner }}
+    runs-on: ${{ inputs.runner }}
     needs: buildProject
     steps:
       - name: Find and run tests
