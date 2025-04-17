@@ -1,0 +1,58 @@
+name: Build .NET
+
+on: 
+  workflow_call:
+    inputs:
+      runner:
+        description: 'Runner to use for the job'
+        required: false
+        default: 'local'
+        type: string
+      publish:
+        description: 'Whether or not to run the Publish command'
+        required: false
+        default: false
+        type: boolean
+jobs:
+
+  build:
+    runs-on: ${{ inputs.runner }}
+    permissions:
+      contents: read
+      packages: read
+      
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+      
+    - name: find solution file
+      run: |
+          $slnFile = Get-ChildItem -Path . -Filter *.sln -Recurse | Select-Object -First 1
+          if ($slnFile -eq $null) { 
+             Write-Error "No .sln file found in the repository." 
+             exit 1 
+           }
+           echo "SOLUTION_FILE=$($slnFile.FullName -replace '\\', '/')" >> $env:GITHUB_ENV
+      shell: powershell
+      
+      
+    - name: Run Restore
+      run: |
+       dotnet restore $env:SOLUTION_FILE 
+      shell: powershell
+
+
+    - name: Run Build
+      run: |
+         dotnet build $env:SOLUTION_FILE --configuration Release
+      shell: powershell
+
+  publish:
+    runs-on: ${{ inputs.runner }}
+    needs: build
+    if: ${{ inputs.publish == true }}
+    steps:
+    - name: publish
+      run: |
+         dotnet publish $env:SOLUTION_FILE --configuration Release
+      shell: powershell
