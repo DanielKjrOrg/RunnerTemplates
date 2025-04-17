@@ -23,7 +23,7 @@ defaults:
     shell: powershell
 jobs:
   buildProject:
-    uses: DanielKjrOrg/RunnerTemplates/.github/workflows/buildDotNet.yml@master
+    uses: DanielKjrOrg/RunnerTemplates/.github/workflows/buildDotNet.yml@main
 
   run-tests:
     runs-on: ${{ intpus.runner }}
